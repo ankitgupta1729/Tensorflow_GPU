@@ -1,0 +1,124 @@
+(1) UNinstall existing cuda and nvidia (https://stackoverflow.com/questions/56431461/how-to-remove-cuda-completely-from-ubuntu)
+
+(A)
+
+# To uninstall cuda
+sudo /usr/local/cuda-11.4/bin/cuda-uninstaller 
+
+# To uninstall nvidia
+sudo apt-get purge nvidia*
+sudo apt-get autoremove
+sudo apt-get autoclean
+
+(2) Install GPU on Tensorflow=2, Python=3.10, Ubuntu=22.04
+
+https://github.com/thushv89/manning_tf2_in_action
+(https://www.youtube.com/watch?v=c-XT7XMmB5o&ab_channel=DeepLearningHero)
+
+Step 1: Install Nvidia Drivers
+
+sudo ubuntu-drivers install   
+sudo reboot
+
+Step 2: Create Virtual Enviroment and install tensorflow 2
+
+conda create -p tfenv python=3.9
+conda activate tfenv/
+pip install tensorflow==2.9.1
+
+
+Step 3: Install CUDA CUDA 11.2 (TensorFlow 2.9.1)
+
+(make sure gcc-10 is installed..you can check gcc --version)
+(https://stackoverflow.com/questions/6622454/cuda-incompatible-with-my-gcc-version)
+https://askubuntu.com/questions/1192955/how-to-install-g-10-on-ubuntu-18-04
+https://askubuntu.com/questions/1109982/e-could-not-get-lock-var-lib-dpkg-lock-frontend-open-11-resource-temporari
+
+
+-- download cuda 11.2: https://developer.nvidia.com/cuda-11.2.0-download-archive?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=2004
+
+
+(linux x86_64 ubuntu 18.04 runfile(local)) --> click download(2.4 GB)
+
+-- go in downloads directory
+
+-- give execution permission to downloaded file: chmod +x cuda_11.2.0_460.27.04_linux.run
+
+-- check: ls -lah | grep cuda
+
+-- run: sudo ./cuda_11.2.0_460.27.04_linux.run
+
+
+
+Step 4: Install cuDNN 8.1.1
+
+-- Cudnn download on google
+-- make nvidia account
+-- download linux x_86_64 cudnn 8.1.1 from https://developer.nvidia.com/rdp/cudnn-archive
+-- cd ~/Downloads/
+-- run: tar -xvzf tar -xvzf cudnn-11.2-linux-x64-v8.1.1.33.tgz
+-- go to https://docs.nvidia.com/deeplearning/cudnn/archives/cudnn-891/install-guide/index.html#installlinux-tar
+-- run: sudo cp cuda/include/cudnn*.h /usr/local/cuda-11.2/include
+-- sudo cp cuda/lib64/libcudnn* /usr/local/cuda-11.2/lib64
+-- sudo chmod a+r /usr/local/cuda-11.2/include/cudnn*.h /usr/local/cuda-11.2/lib64/libcudnn*
+-- nvcc --version
+ 
+(Make sure cuda and cudnn versions are compatible with tensorflow versions)
+
+
+Step 5: Final Check
+
+import tensorflow as tf
+print(tf.__version__)
+print(tf.test_is_gpu_available())
+print(tf.config.list_physical_devices())
+
+Step 6:
+
+pip install numpy==1.26.4
+pip install notebook==5.7.4
+pip install tornado==5.1.1
+(in the same order)
+
+https://stackoverflow.com/questions/54955563/jupyter-notebook-cannot-connect-to-kernel
+
+
+Step 7:
+
+To check GPU consumption on Ubuntu:
+
+open Nvidia serverx and check consumption.
+
+Step 8:
+
+For PyTorch: Create conda environment with python==3.8
+
+Then follow https://github.com/pytorch/pytorch/issues/50032
+
+for cuda 11.2 
+
+run in virtul env: pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
+
+Step 9: check
+
+import torch
+
+# setting device on GPU if available, else CPU
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print('Using device:', device)
+print()
+
+#Additional Info when using cuda
+if device.type == 'cuda':
+    print(torch.cuda.get_device_name(0))
+    print('Memory Usage:')
+    print('Allocated:', round(torch.cuda.memory_allocated(0)/1024**3,1), 'GB')
+    print('Cached:   ', round(torch.cuda.memory_reserved(0)/1024**3,1), 'GB')
+
+
+-----------------------------------------------------------------------------------------------------------------------------------
+(3) Other Links:
+
+https://medium.com/@dev-charodeyka/tensorflow-conda-nvidia-gpu-on-ubuntu-22-04-3-lts-ad61c1d9ee32
+https://gist.github.com/denguir/b21aa66ae7fb1089655dd9de8351a202
+https://developer.nvidia.com/rdp/cudnn-archive
